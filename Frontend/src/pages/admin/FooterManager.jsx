@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Loader from '../../components/Loader';
 
 const FooterManager = () => {
     const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ const FooterManager = () => {
         refundPolicy: ''
     });
     const [loading, setLoading] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(true);
 
     useEffect(() => {
         fetchFooter();
@@ -19,6 +21,7 @@ const FooterManager = () => {
 
     const fetchFooter = async () => {
         try {
+            setInitialLoading(true);
             const res = await axios.get(`${process.env.REACT_APP_API_URL}/footer`);
             setFormData({
                 facebook: res.data.facebook || '',
@@ -31,6 +34,8 @@ const FooterManager = () => {
             });
         } catch (error) {
             console.error('Error fetching footer data:', error);
+        } finally {
+            setInitialLoading(false);
         }
     };
 
@@ -62,6 +67,9 @@ const FooterManager = () => {
     return (
         <div className="p-6">
             <h2 className="text-2xl font-bold mb-6">Manage Footer & Social Links</h2>
+            {initialLoading ? (
+                <Loader />
+            ) : (
             <div className="bg-white p-6 rounded-lg shadow-md max-w-2xl">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
@@ -123,6 +131,7 @@ const FooterManager = () => {
                     </button>
                 </form>
             </div>
+            )}
         </div>
     );
 };

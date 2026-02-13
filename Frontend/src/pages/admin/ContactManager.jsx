@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { SearchBar, Modal } from '../../components/AdminComponents';
+import Loader from '../../components/Loader';
 
 const ContactManager = () => {
     const [contacts, setContacts] = useState([]);
@@ -8,9 +9,11 @@ const ContactManager = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedContact, setSelectedContact] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const fetchContacts = async () => {
         try {
+            setLoading(true);
             const token = localStorage.getItem('token');
             const res = await axios.get(`${process.env.REACT_APP_API_URL}/contacts`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -19,6 +22,8 @@ const ContactManager = () => {
             setFilteredContacts(res.data);
         } catch (error) {
             console.error('Error fetching contacts:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -63,88 +68,94 @@ const ContactManager = () => {
                 </div>
             </div>
 
-            {/* Desktop Table View */}
-            <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mobile</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Message Preview</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
+            {loading ? (
+                <div className="flex justify-center p-10"><Loader /></div>
+            ) : (
+                <>
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mobile</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Message Preview</th>
+                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                                {filteredContacts.map(contact => (
+                                    <tr key={contact._id} className="hover:bg-gray-50 cursor-pointer" onClick={() => handleView(contact)}>
+                                        <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                                            {new Date(contact.createdAt).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{contact.name}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-500">{contact.mobile || '-'}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-500">{contact.email}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-500 truncate max-w-xs">{contact.message}</td>
+                                        <td className="px-6 py-4 text-right text-sm font-medium">
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); handleDelete(contact._id); }} 
+                                                className="text-red-600 hover:text-red-900"
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {filteredContacts.length === 0 && (
+                                    <tr>
+                                        <td colSpan="6" className="px-6 py-4 text-center text-gray-500">No queries found.</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden space-y-4">
                         {filteredContacts.map(contact => (
-                            <tr key={contact._id} className="hover:bg-gray-50 cursor-pointer" onClick={() => handleView(contact)}>
-                                <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                                    {new Date(contact.createdAt).toLocaleDateString()}
-                                </td>
-                                <td className="px-6 py-4 text-sm font-medium text-gray-900">{contact.name}</td>
-                                <td className="px-6 py-4 text-sm text-gray-500">{contact.mobile || '-'}</td>
-                                <td className="px-6 py-4 text-sm text-gray-500">{contact.email}</td>
-                                <td className="px-6 py-4 text-sm text-gray-500 truncate max-w-xs">{contact.message}</td>
-                                <td className="px-6 py-4 text-right text-sm font-medium">
+                            <div 
+                                key={contact._id} 
+                                className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow"
+                                onClick={() => handleView(contact)}
+                            >
+                                <div className="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h3 className="font-bold text-gray-800">{contact.name}</h3>
+                                        <span className="text-xs text-gray-500">{new Date(contact.createdAt).toLocaleDateString()}</span>
+                                    </div>
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); handleDelete(contact._id); }} 
-                                        className="text-red-600 hover:text-red-900"
+                                        className="text-red-600 hover:text-red-800 p-1"
                                     >
-                                        Delete
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                     </button>
-                                </td>
-                            </tr>
+                                </div>
+                                
+                                <div className="space-y-1 text-sm text-gray-600 mb-3">
+                                    <div className="flex items-center">
+                                        <span className="mr-2">📱</span> {contact.mobile || '-'}
+                                    </div>
+                                    <div className="flex items-center">
+                                        <span className="mr-2">✉️</span> <span className="truncate">{contact.email}</span>
+                                    </div>
+                                </div>
+
+                                <div className="bg-gray-50 p-3 rounded text-sm text-gray-700 line-clamp-2">
+                                    {contact.message}
+                                </div>
+                            </div>
                         ))}
-                         {filteredContacts.length === 0 && (
-                            <tr>
-                                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">No queries found.</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
-
-            {/* Mobile Card View */}
-            <div className="md:hidden space-y-4">
-                {filteredContacts.map(contact => (
-                    <div 
-                        key={contact._id} 
-                        className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow"
-                        onClick={() => handleView(contact)}
-                    >
-                        <div className="flex justify-between items-start mb-2">
-                            <div>
-                                <h3 className="font-bold text-gray-800">{contact.name}</h3>
-                                <span className="text-xs text-gray-500">{new Date(contact.createdAt).toLocaleDateString()}</span>
-                            </div>
-                            <button 
-                                onClick={(e) => { e.stopPropagation(); handleDelete(contact._id); }} 
-                                className="text-red-600 hover:text-red-800 p-1"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                            </button>
-                        </div>
                         
-                        <div className="space-y-1 text-sm text-gray-600 mb-3">
-                            <div className="flex items-center">
-                                <span className="mr-2">📱</span> {contact.mobile || '-'}
-                            </div>
-                            <div className="flex items-center">
-                                <span className="mr-2">✉️</span> <span className="truncate">{contact.email}</span>
-                            </div>
-                        </div>
-
-                        <div className="bg-gray-50 p-3 rounded text-sm text-gray-700 line-clamp-2">
-                            {contact.message}
-                        </div>
+                        {filteredContacts.length === 0 && (
+                            <div className="text-center text-gray-500 mt-8">No queries found.</div>
+                        )}
                     </div>
-                ))}
-                
-                {filteredContacts.length === 0 && (
-                    <div className="text-center text-gray-500 mt-8">No queries found.</div>
-                )}
-            </div>
+                </>
+            )}
 
             <Modal 
                 isOpen={isModalOpen} 

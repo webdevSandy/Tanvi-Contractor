@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Modal } from '../../components/AdminComponents';
+import Loader from '../../components/Loader';
 
 const AdminProfile = ({ isOpen, onClose }) => {
     const [user, setUser] = useState(null);
@@ -104,8 +105,8 @@ const AdminProfile = ({ isOpen, onClose }) => {
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Admin Profile & Security">
-             {loading ? (
-                <div className="p-6 text-center text-gray-500">Loading profile data...</div>
+            {loading ? (
+                <div className="p-6 flex justify-center"><Loader /></div>
             ) : !user ? (
                 <div className="p-6 text-center text-red-500">
                     {error || 'Could not load profile.'}

@@ -44,7 +44,7 @@ const AdminLayout = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        navigate('/login');
+        navigate('/');
     };
 
     const isActive = (path) => {

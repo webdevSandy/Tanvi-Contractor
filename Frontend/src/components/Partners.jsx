@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Loader from './Loader';
 
 const Partners = () => {
     const [partners, setPartners] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchPartners = async () => {
@@ -14,6 +16,7 @@ const Partners = () => {
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching partners:', error);
+                setError('Failed to load partners.');
                 setLoading(false);
             }
         };
@@ -24,7 +27,15 @@ const Partners = () => {
   if (loading) {
     return (
         <div id="partners" className="py-20 bg-white flex justify-center">
-             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B0000]"></div>
+             <Loader />
+        </div>
+    );
+  }
+
+  if (error) {
+    return (
+        <div id="partners" className="py-20 bg-white flex justify-center text-red-500">
+             {error}
         </div>
     );
   }
@@ -40,7 +51,7 @@ const Partners = () => {
       >
         <h2 className="text-3xl md:text-4xl font-bold text-[#002D5B] mb-6">Partners</h2>
         <p className="mb-12 text-gray-600 max-w-4xl mx-auto text-base md:text-lg">
-            At Tanvi Contractor, we provide reliable and cost-effective contract-based services to meet your personal, business, and organizational needs. Whether you are looking for vehicles, manpower, or specialized support - we've got you covered.
+          Trusted by top brands and professional networks across the industry.
         </p>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">

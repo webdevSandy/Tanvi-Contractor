@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import Loader from './Loader';
 
 const ContactUs = () => {
     const [contactInfo, setContactInfo] = useState({
-        phone: '+91 123 456 7890',
-        email: 'info@tanvicontractor.com',
-        address: '123, Main Street, City, Country'
+        phone: '',
+        email: '',
+        address: ''
     });
-    
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+        
     // Fetch contact info
     React.useEffect(() => {
         const fetchContactInfo = async () => {
@@ -16,13 +19,17 @@ const ContactUs = () => {
                 const res = await axios.get(`${process.env.REACT_APP_API_URL}/company-contact`);
                 if (res.data) {
                     setContactInfo({
-                        phone: res.data.phone || '+91 123 456 7890',
-                        email: res.data.email || 'info@tanvicontractor.com',
-                        address: res.data.address || '123, Main Street, City, Country'
+                        phone: res.data.phone || '',
+                        email: res.data.email || '',
+                        address: res.data.address || '',
                     });
                 }
+                setLoading(false);
             } catch (error) {
                 console.error('Error fetching contact info:', error);
+                // Don't set error on UI for contact info, just log it. 
+                // We show form even if contact info fails.
+                setLoading(false); 
             }
         };
         fetchContactInfo();
@@ -57,6 +64,11 @@ const ContactUs = () => {
 
     return (
         <div id="contact" className="py-20 bg-gray-50">
+            {loading ? (
+                 <div className="flex justify-center items-center h-64">
+                    <Loader />
+                 </div>
+            ) : (
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* ... Header and Info section unchanged ... */}
                 <motion.div 
@@ -173,6 +185,7 @@ const ContactUs = () => {
                     </motion.div>
                 </div>
             </div>
+            )}
         </div>
     );
 };

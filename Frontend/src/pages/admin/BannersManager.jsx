@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { SearchBar, ViewToggle, Modal } from '../../components/AdminComponents';
+import Loader from '../../components/Loader';
 
 const BannersManager = () => {
     const [banners, setBanners] = useState([]);
@@ -14,14 +15,18 @@ const BannersManager = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [currentId, setCurrentId] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const fetchBanners = async () => {
         try {
+            setLoading(true);
             const res = await axios.get(`${process.env.REACT_APP_API_URL}/banners`);
             setBanners(res.data);
             setFilteredBanners(res.data);
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -125,7 +130,9 @@ const BannersManager = () => {
                 </div>
             </div>
 
-            {view === 'card' ? (
+            {loading ? (
+                <Loader />
+            ) : view === 'card' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredBanners.map(banner => (
                         <div key={banner._id} className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition">

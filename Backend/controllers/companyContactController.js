@@ -16,7 +16,7 @@ exports.getContactInfo = async (req, res) => {
 // @route   PUT /api/company-contact
 // @access  Private/Admin
 exports.updateContactInfo = async (req, res) => {
-    const { phone, email, address } = req.body;
+    const { phone, email, address, accountName, accountNumber, ifscCode, bankName, branch, gstin, pan } = req.body;
 
     try {
         const contact = await CompanyContact.getSingleton();
@@ -24,6 +24,17 @@ exports.updateContactInfo = async (req, res) => {
         contact.phone = phone || contact.phone;
         contact.email = email || contact.email;
         contact.address = address || contact.address;
+        
+        // Update Bank Details
+        contact.accountName = accountName || contact.accountName;
+        contact.accountNumber = accountNumber || contact.accountNumber;
+        contact.ifscCode = ifscCode || contact.ifscCode;
+        contact.bankName = bankName || contact.bankName;
+        contact.branch = branch || contact.branch;
+
+        // Update Tax Info
+        contact.gstin = gstin || contact.gstin;
+        contact.pan = pan || contact.pan;
 
         const updatedContact = await contact.save();
         res.json(updatedContact);

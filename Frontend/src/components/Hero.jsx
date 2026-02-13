@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Loader from './Loader';
 
 const Hero = () => {
     const [banners, setBanners] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     // Fetch banners from API
     useEffect(() => {
@@ -18,6 +20,7 @@ const Hero = () => {
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching banners:', error);
+                setError('Failed to load banners.');
                 setLoading(false);
             }
         };
@@ -44,9 +47,23 @@ const Hero = () => {
     if (loading) {
         return (
              <div className="h-[600px] w-full flex items-center justify-center bg-gray-100">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B0000]"></div>
+                <Loader />
              </div>
         );
+    }
+
+    if (error) {
+        // Fallback to default banner on error, but log it. 
+        // Or render nothing? The user wants loader if loading.
+        // If error, maybe just show default banners?
+        // Let's stick to existing logic where we use default if banners empty.
+        // BUT, if error, loading is false. And banners is [].
+        // So existing logic will pick up default banners below.
+        // The user specifically wants loader if *loading*.
+        // If error, we are *not* loading. 
+        // So showing default banners is better than red error text for hero.
+        // I will NOT add explicit error return here, to allow fallback to default banners.
+        // Just setting error state is enough for debugging.
     }
 
     // Default banner if API returns empty

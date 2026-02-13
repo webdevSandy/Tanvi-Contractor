@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { SearchBar, ViewToggle, Modal } from '../../components/AdminComponents';
+import Loader from '../../components/Loader';
 
 const PartnersManager = () => {
     const [partners, setPartners] = useState([]);
@@ -14,14 +15,18 @@ const PartnersManager = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [currentId, setCurrentId] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const fetchPartners = async () => {
         try {
+            setLoading(true);
             const res = await axios.get(`${process.env.REACT_APP_API_URL}/partners`);
             setPartners(res.data);
             setFilteredPartners(res.data);
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -126,7 +131,9 @@ const PartnersManager = () => {
                 </div>
             </div>
 
-            {view === 'card' ? (
+            {loading ? (
+                <Loader />
+            ) : view === 'card' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
                     {filteredPartners.map(partner => (
                         <div key={partner._id} className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition flex flex-col items-center">

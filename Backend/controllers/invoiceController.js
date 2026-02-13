@@ -1,4 +1,5 @@
 const Invoice = require('../models/Invoice');
+const CompanyContact = require('../models/CompanyContactModel');
 const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
@@ -21,6 +22,7 @@ exports.createInvoice = async (req, res) => {
 
 exports.getInvoices = async (req, res) => {
     try {
+        console.log('GET /invoices request received');
         const invoices = await Invoice.find().sort({ createdAt: -1 });
         res.json(invoices);
     } catch (error) {
@@ -47,6 +49,8 @@ exports.generatePDF = async (req, res) => {
         if (!invoice) {
             return res.status(404).json({ message: 'Invoice not found' });
         }
+
+        const contact = await CompanyContact.getSingleton();
 
         const htmlContent = `
             <!DOCTYPE html>
@@ -201,8 +205,8 @@ exports.generatePDF = async (req, res) => {
                         <!-- 2. Second Row: GST/PAN (Left) and Contact (Right) -->
                         <div class="top-row">
                             <div class="gst-pan">
-                                GSTIN : ${invoice.consignee?.gstin || '09ELJPK1174H2ZV'}<br>
-                                PAN No. : ${invoice.pan || 'ELJPK1174H'}
+                                GSTIN : ${contact.gstin || '09ELJPK1174H2ZV'}<br>
+                                PAN No. : ${contact.pan || 'ELJPK1174H'}
                             </div>
                             <div class="contact-info">
                                 Mob. : ${invoice.mobile || '8115747357'}<br>
@@ -266,10 +270,10 @@ exports.generatePDF = async (req, res) => {
                             </td>
                             <td width="50%">
                                 <strong>ACCOUNT DETAIL -</strong><br>
-                                <strong>A/C No. - ${invoice.accountDetails?.accountNumber}</strong><br>
-                                <strong>IFSC Code - ${invoice.accountDetails?.ifscCode}</strong><br>
-                                <strong>Bank Name : ${invoice.accountDetails?.bankName}</strong><br>
-                                <strong>Address : ${invoice.accountDetails?.branch}</strong>
+                                <strong>A/C No. - ${contact.accountNumber || invoice.accountDetails?.accountNumber}</strong><br>
+                                <strong>IFSC Code - ${contact.ifscCode || invoice.accountDetails?.ifscCode}</strong><br>
+                                <strong>Bank Name : ${contact.bankName || invoice.accountDetails?.bankName}</strong><br>
+                                <strong>Address : ${contact.branch || invoice.accountDetails?.branch}</strong>
                             </td>
                         </tr>
                     </table>
@@ -323,20 +327,28 @@ exports.generatePDF = async (req, res) => {
             </html>
         `;
 
-        const browser = await puppeteer.launch();
+        console.log(`Generating PDF for Ref: ${invoice.invoiceNumber}`);
+        const browser = await puppeteer.launch({ 
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+        });
         const page = await browser.newPage();
-        await page.setContent(htmlContent);
-        const pdfBuffer = await page.pdf({ format: 'A4' });
+        await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
+        const pdfBuffer = await page.pdf({ 
+            format: 'A4', 
+            printBackground: true 
+        });
 
         await browser.close();
+        console.log(`PDF Generated successfully`);
 
         res.set('Content-Type', 'application/pdf');
         res.set('Content-Disposition', `attachment; filename=invoice_${invoice.invoiceNumber}.pdf`);
         res.send(pdfBuffer);
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: error.message });
+        console.error('PDF Generation Error:', error);
+        res.status(500).json({ message: 'Error generating PDF: ' + error.message });
     }
 };
 

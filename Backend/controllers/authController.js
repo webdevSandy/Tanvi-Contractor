@@ -92,7 +92,7 @@ exports.loginUser = async (req, res) => {
                     });
                 } catch (emailError) {
                     console.error(emailError);
-                    return res.status(500).json({ message: 'Email could not be sent. Please contact support.' });
+                    return res.status(500).json({ message: 'Email error: ' + emailError.message });
                 }
             }
 

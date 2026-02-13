@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Loader from './Loader';
 
 const Services = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -14,6 +16,7 @@ const Services = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching services:', error);
+        setError('Failed to load services.');
         setLoading(false);
       }
     };
@@ -24,7 +27,15 @@ const Services = () => {
   if (loading) {
     return (
       <div id="services" className="py-20 bg-white flex justify-center">
-         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B0000]"></div>
+         <Loader />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div id="services" className="py-20 bg-white flex justify-center text-red-500">
+        {error}
       </div>
     );
   }
@@ -41,7 +52,7 @@ const Services = () => {
         >
           <h2 className="text-3xl md:text-4xl font-bold text-[#002D5B]">Our Services</h2>
           <p className="mt-4 text-gray-600 max-w-4xl mx-auto text-base md:text-lg">
-            At Tanvi Contractor, we provide reliable and cost-effective contract-based services to meet your personal, business, and organizational needs. Whether you are looking for vehicles, manpower, or specialized support - we've got you covered.
+            Quality craftsmanship and expert management for every project.
           </p>
         </motion.div>
 

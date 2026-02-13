@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Loader from '../../components/Loader';
 
 const CompanyContactManager = () => {
     const [formData, setFormData] = useState({
         phone: '',
         email: '',
-        address: ''
+        address: '',
+        accountName: '',
+        accountNumber: '',
+        ifscCode: '',
+        bankName: '',
+        branch: ''
     });
     const [loading, setLoading] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(true);
 
     useEffect(() => {
         fetchContactInfo();
@@ -15,14 +22,22 @@ const CompanyContactManager = () => {
 
     const fetchContactInfo = async () => {
         try {
+            setInitialLoading(true);
             const res = await axios.get(`${process.env.REACT_APP_API_URL}/company-contact`);
             setFormData({
                 phone: res.data.phone || '',
                 email: res.data.email || '',
-                address: res.data.address || ''
+                address: res.data.address || '',
+                accountName: res.data.accountName || '',
+                accountNumber: res.data.accountNumber || '',
+                ifscCode: res.data.ifscCode || '',
+                bankName: res.data.bankName || '',
+                branch: res.data.branch || ''
             });
         } catch (error) {
             console.error('Error fetching contact info:', error);
+        } finally {
+            setInitialLoading(false);
         }
     };
 
@@ -41,7 +56,7 @@ const CompanyContactManager = () => {
                     Authorization: `Bearer ${token}`
                 }
             });
-            alert('Company contact info updated successfully!');
+            alert('Company contact & Bank info updated successfully!');
             fetchContactInfo();
         } catch (error) {
             console.error('Error updating contact info:', error);
@@ -54,6 +69,9 @@ const CompanyContactManager = () => {
     return (
         <div className="p-6">
             <h2 className="text-2xl font-bold mb-6">Manage Company Info</h2>
+            {initialLoading ? (
+                <Loader />
+            ) : (
             <div className="bg-white p-6 rounded-lg shadow-md max-w-2xl">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -90,6 +108,32 @@ const CompanyContactManager = () => {
                         />
                     </div>
 
+                    <div className="border-t pt-4 mt-4">
+                        <h3 className="text-lg font-bold mb-4 text-gray-700">Bank Details (For Invoicing)</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Account Name</label>
+                                <input type="text" name="accountName" value={formData.accountName} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Account Number</label>
+                                <input type="text" name="accountNumber" value={formData.accountNumber} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">IFSC Code</label>
+                                <input type="text" name="ifscCode" value={formData.ifscCode} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Bank Name</label>
+                                <input type="text" name="bankName" value={formData.bankName} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg" />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Branch</label>
+                                <input type="text" name="branch" value={formData.branch} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg" />
+                            </div>
+                        </div>
+                    </div>
+
                     <button
                         type="submit"
                         disabled={loading}
@@ -99,6 +143,7 @@ const CompanyContactManager = () => {
                     </button>
                 </form>
             </div>
+            )}
         </div>
     );
 };

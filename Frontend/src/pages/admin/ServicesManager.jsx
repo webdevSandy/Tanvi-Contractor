@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { SearchBar, ViewToggle, Modal } from '../../components/AdminComponents';
+import Loader from '../../components/Loader';
 
 const ServicesManager = () => {
     const [services, setServices] = useState([]);
@@ -17,14 +18,18 @@ const ServicesManager = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [currentId, setCurrentId] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const fetchServices = async () => {
         try {
+            setLoading(true);
             const res = await axios.get(`${process.env.REACT_APP_API_URL}/services`);
             setServices(res.data);
             setFilteredServices(res.data);
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -166,7 +171,9 @@ const ServicesManager = () => {
                 </div>
             </div>
 
-            {view === 'card' ? (
+            {loading ? (
+                <Loader />
+            ) : view === 'card' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredServices.map(service => (
                         <div key={service._id} className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition">

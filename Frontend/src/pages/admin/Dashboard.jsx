@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import InvoiceDetailModal from '../../components/InvoiceDetailModal';
+import Loader from '../../components/Loader';
 
 const Dashboard = () => {
     const [stats, setStats] = useState({
@@ -108,7 +109,7 @@ const Dashboard = () => {
     ];
 
     if (isLoading) {
-        return <div className="p-10 text-center text-gray-500">Loading Dashboard...</div>;
+        return <div className="p-10 flex justify-center"><Loader /></div>;
     }
 
     return (

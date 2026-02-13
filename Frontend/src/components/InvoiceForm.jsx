@@ -10,19 +10,13 @@ const InvoiceForm = () => {
         clientName: '',
         clientAddress: '',
         consignee: { name: '', address: '', gstin: '' },
-        vendorCode: '1006395',
+        vendorCode: '',
         orderNo: '',
         orderDate: '',
-        contractNo: '4200063452',
-        diNo: '5200065362',
+        contractNo: '',
+        diNo: '',
         diDate: '',
-        accountDetails: {
-            accountName: 'Indian Bank',
-            accountNumber: '7638335079',
-            ifscCode: 'IDIB000O029',
-            bankName: 'Indian Bank',
-            branch: 'Kalpi Bus Stand Orai'
-        },
+        accountDetails: {},
         items: [{ description: '', quantity: 1, rate: 0, amount: 0, unit: 'NOS' }]
     });
 

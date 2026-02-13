@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Loader from '../../components/Loader';
 
 const ActivityLogs = () => {
     const [logs, setLogs] = useState([]);
@@ -125,15 +126,11 @@ const ActivityLogs = () => {
                         </thead>
                         <tbody className="divide-y divide-gray-50 bg-white">
                             {loading ? (
-                                Array(5).fill(0).map((_, i) => (
-                                    <tr key={i} className="animate-pulse hidden sm:table-row">
-                                        <td className="px-6 py-4"><div className="h-4 bg-gray-200 rounded w-32"></div></td>
-                                        <td className="px-6 py-4"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
-                                        <td className="px-6 py-4"><div className="h-4 bg-gray-200 rounded w-20"></div></td>
-                                        <td className="px-6 py-4"><div className="h-4 bg-gray-200 rounded w-48"></div></td>
-                                        <td className="px-6 py-4"><div className="h-4 bg-gray-200 rounded w-24 ml-auto"></div></td>
-                                    </tr>
-                                ))
+                                <tr>
+                                    <td colSpan="5" className="px-6 py-12 flex justify-center">
+                                        <Loader />
+                                    </td>
+                                </tr>
                             ) : logs.length === 0 ? (
                                 <tr>
                                     <td colSpan="5" className="px-6 py-12 text-center">

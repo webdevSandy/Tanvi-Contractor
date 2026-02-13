@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { SearchBar, ViewToggle, Modal } from '../components/AdminComponents'; // Added Modal import
+import Loader from '../components/Loader';
 
 const InvoiceList = () => {
     const navigate = useNavigate();
@@ -60,9 +61,12 @@ const InvoiceList = () => {
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
+            } else {
+                alert('Failed to download PDF. Server returned: ' + response.status);
             }
         } catch (error) {
             console.error('Error downloading PDF:', error);
+            alert('Error connecting to server. Please ensure backend is running.');
         }
     };
 
@@ -82,7 +86,7 @@ const InvoiceList = () => {
             }
         } catch (error) {
             console.error('Error fetching PDF for preview:', error);
-            alert('Could not load preview');
+            alert('Could not load preview. Please ensure backend is running.');
         }
     };
 
@@ -100,7 +104,7 @@ const InvoiceList = () => {
         }
     };
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <div className="flex justify-center p-10"><Loader /></div>;
 
     return (
         <div className="p-6">
