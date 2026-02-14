@@ -328,17 +328,24 @@ exports.generatePDF = async (req, res) => {
         `;
 
         console.log(`Generating PDF for Ref: ${invoice.invoiceNumber}`);
-        const browser = await puppeteer.launch({ 
-            headless: true,
-            args: [
-                '--no-sandbox', 
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage', // Critical for Docker/Render
+        
+        let launchArgs = ['--no-sandbox', '--disable-setuid-sandbox'];
+        
+        // Add aggressive flags for Linux/Production (Render/Vercel) to save memory
+        if (process.platform !== 'win32') {
+            launchArgs = [
+                ...launchArgs,
+                '--disable-dev-shm-usage',
                 '--disable-gpu',
                 '--no-first-run',
                 '--no-zygote',
-                '--single-process', // helpful for simple pdf generation
-            ] 
+                '--single-process',
+            ];
+        }
+
+        const browser = await puppeteer.launch({ 
+            headless: true,
+            args: launchArgs
         });
         const page = await browser.newPage();
         await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
