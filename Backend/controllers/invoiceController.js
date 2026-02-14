@@ -339,27 +339,40 @@ exports.generatePDF = async (req, res) => {
                 '--disable-gpu',
                 '--no-first-run',
                 '--no-zygote',
-                '--single-process',
+                // '--single-process', // Removed as it can be unstable
+                '--disable-accelerated-2d-canvas',
+                '--disable-extensions'
             ];
         }
 
-        const browser = await puppeteer.launch({ 
-            headless: true,
-            args: launchArgs
-        });
-        const page = await browser.newPage();
-        await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
-        const pdfBuffer = await page.pdf({ 
-            format: 'A4', 
-            printBackground: true 
-        });
-
-        await browser.close();
-        console.log(`PDF Generated successfully`);
-
-        res.set('Content-Type', 'application/pdf');
-        res.set('Content-Disposition', `attachment; filename=invoice_${invoice.invoiceNumber}.pdf`);
-        res.send(pdfBuffer);
+        try {
+            const browser = await puppeteer.launch({ 
+                headless: 'new', // Use new headless mode
+                args: launchArgs
+            });
+            const page = await browser.newPage();
+            
+            // Set content with a reasonable timeout
+            await page.setContent(htmlContent, { 
+                waitUntil: 'domcontentloaded',
+                timeout: 60000 // 60 seconds timeout
+            });
+            
+            const pdfBuffer = await page.pdf({ 
+                format: 'A4', 
+                printBackground: true 
+            });
+    
+            await browser.close();
+            console.log(`PDF Generated successfully`);
+    
+            res.set('Content-Type', 'application/pdf');
+            res.set('Content-Disposition', `attachment; filename=invoice_${invoice.invoiceNumber}.pdf`);
+            res.send(pdfBuffer);
+        } catch (puppeteerError) {
+            console.error('Puppeteer specific error:', puppeteerError);
+            throw puppeteerError; // Re-throw to be caught by outer catch
+        }
 
     } catch (error) {
         console.error('PDF Generation Error:', error);
