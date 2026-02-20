@@ -21,6 +21,7 @@ import ContactManager from './pages/admin/ContactManager';
 import Dashboard from './pages/admin/Dashboard';
 import ActivityLogs from './pages/admin/ActivityLogs';
 import AdminProfile from './pages/admin/AdminProfile';
+import AccountantDashboard from './pages/admin/AccountantDashboard';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
              <Route path="footer" element={<FooterManager />} />
              <Route path="contacts" element={<ContactManager />} />
              <Route path="activity-logs" element={<ActivityLogs />} />
+             <Route path="account" element={<AccountantDashboard />} />
              <Route index element={<Dashboard />} />
           </Route>
           

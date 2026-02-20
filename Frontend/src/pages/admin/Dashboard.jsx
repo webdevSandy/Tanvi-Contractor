@@ -191,7 +191,7 @@ const Dashboard = () => {
                                                 {new Date(inv.date).toLocaleDateString()}
                                             </td>
                                             <td className="py-3 text-sm text-gray-900 font-bold text-right">
-                                                ₹{inv.totalAmount?.toLocaleString()}
+                                                ₹{inv.grandTotal?.toLocaleString()}
                                             </td>
                                             <td className="py-3 text-center">
                                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

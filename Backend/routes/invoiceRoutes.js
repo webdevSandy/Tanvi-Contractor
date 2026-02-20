@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { createInvoice, getInvoices, getInvoiceById, generatePDF, deleteInvoice, updateInvoice } = require('../controllers/invoiceController');
+const { createInvoice, getInvoices, getInvoiceById, generatePDF, deleteInvoice, updateInvoice, getInvoiceStats } = require('../controllers/invoiceController.js');
 const { protect } = require('../middleware/authMiddleware');
+
+router.get('/date-stats', protect, getInvoiceStats);
 
 router.route('/')
     .post(protect, createInvoice)

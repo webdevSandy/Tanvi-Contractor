@@ -32,6 +32,7 @@ app.use('/api/about', aboutRoutes);
 app.use('/api/company-contact', require('./routes/companyContactRoutes'));
 app.use('/api/footer', require('./routes/footerRoutes')); // Added
 app.use('/api/activity-logs', require('./routes/activityLogRoutes')); // Activity Logs
+app.use('/api/expenses', require('./routes/expenseRoutes')); // Expenses
 
 app.get('/', (req, res) => {
     res.send('Tanvi Contractor Backend is running');

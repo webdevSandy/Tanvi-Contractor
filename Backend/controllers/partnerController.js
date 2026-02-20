@@ -1,5 +1,7 @@
-const Partner = require('../models/Partner');
+const Partner = require('../models/Partner.js');
 const { logActivity } = require('./activityLogController');
+
+// Controller methods for Partners - Refreshed
 
 exports.createPartner = async (req, res) => {
     try {
@@ -39,8 +41,9 @@ exports.updatePartner = async (req, res) => {
         if (!partner) return res.status(404).json({ message: 'Partner not found' });
         
         await logActivity(req.user._id, req.user.username, 'UPDATE_PARTNER', { 
-            partnerId: partner._id,
-            partnerName: partner.name 
+            partnerId: partner.id,
+            partnerName: partner.name,
+            snapshot: partner.toObject()
         }, req);
 
         res.json(partner);
@@ -56,7 +59,8 @@ exports.deletePartner = async (req, res) => {
         
         await logActivity(req.user._id, req.user.username, 'DELETE_PARTNER', { 
             partnerId: req.params.id,
-            partnerName: partner.name 
+            partnerName: partner.name,
+            snapshot: partner.toObject()
         }, req);
 
         res.json({ message: 'Partner removed' });

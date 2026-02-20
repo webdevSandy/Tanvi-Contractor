@@ -7,8 +7,8 @@ const InvoicePage = () => {
   const { invoiceData } = useInvoice();
   const item = {
     description: invoiceData.description,
-    qty: '06',
-    rate: '1380'
+    qty: '',
+    rate: ''
   };
 
   return (

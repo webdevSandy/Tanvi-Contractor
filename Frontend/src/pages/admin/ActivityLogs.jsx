@@ -38,6 +38,23 @@ const ActivityLogs = () => {
         if (page < totalPages) setPage(page + 1);
     };
 
+    const handleUndo = async (logId) => {
+        if (!window.confirm('Are you sure you want to undo this action?')) return;
+        
+        try {
+            const token = localStorage.getItem('token');
+            await axios.post(`${process.env.REACT_APP_API_URL}/activity-logs/${logId}/undo`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            // Refresh logs
+            fetchLogs();
+            alert('Action undone successfully!');
+        } catch (error) {
+            console.error('Undo failed:', error);
+            alert('Failed to undo action: ' + (error.response?.data?.message || error.message));
+        }
+    };
+
     const formatDetails = (action, details) => {
         if (!details) return '-';
         
@@ -121,19 +138,20 @@ const ActivityLogs = () => {
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Details</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Undo</th>
                                 <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">IP Address</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50 bg-white">
                             {loading ? (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-12 flex justify-center">
+                                    <td colSpan="6" className="px-6 py-12 flex justify-center">
                                         <Loader />
                                     </td>
                                 </tr>
                             ) : logs.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-12 text-center">
+                                    <td colSpan="6" className="px-6 py-12 text-center">
                                         <div className="flex flex-col items-center justify-center">
                                             <div className="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center mb-3">
                                                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -143,7 +161,9 @@ const ActivityLogs = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                logs.map((log) => (
+                                logs.map((log) => {
+                                    // console.log('Log Action:', log.action);
+                                    return (
                                     <tr key={log._id} className="group hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent transition-all duration-200 flex flex-col sm:table-row p-4 sm:p-0 border-b sm:border-b-0 relative">
                                         <td className="sm:px-6 sm:py-4 whitespace-nowrap mb-2 sm:mb-0">
                                             <div className="text-sm font-medium text-gray-900 inline-block sm:block">
@@ -191,11 +211,22 @@ const ActivityLogs = () => {
                                         <td className="sm:px-6 sm:py-4 text-sm text-gray-600 mb-2 sm:mb-0">
                                             {formatDetails(log.action, log.details)}
                                         </td>
+                                        <td className="sm:px-6 sm:py-4 whitespace-nowrap text-sm text-gray-600 mb-2 sm:mb-0">
+                                            {(log.action.startsWith('CREATE_') || log.action.startsWith('UPDATE_') || log.action.startsWith('DELETE_')) && !log.action.startsWith('UNDO') && (
+                                                <button 
+                                                    onClick={() => handleUndo(log._id)}
+                                                    className="px-3 py-1 text-xs font-medium text-white bg-gray-600 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors shadow-sm"
+                                                >
+                                                    Undo
+                                                </button>
+                                            )}
+                                        </td>
                                         <td className="sm:px-6 sm:py-4 whitespace-nowrap text-right text-xs font-mono text-gray-400 absolute top-4 right-4 sm:static">
                                             {log.ipAddress || '::1'}
                                         </td>
                                     </tr>
-                                ))
+                                    );
+                                })
                             )}
                         </tbody>
                     </table>

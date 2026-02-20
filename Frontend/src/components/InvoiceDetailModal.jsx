@@ -88,7 +88,7 @@ const InvoiceDetailModal = ({ isOpen, onClose, invoice, onUpdate }) => {
                                     </div>
                                     <div className="flex justify-between border-b pb-2">
                                         <span className="text-gray-500">Amount:</span>
-                                        <span className="font-bold text-lg">₹{invoice.totalAmount?.toLocaleString()}</span>
+                                        <span className="font-bold text-lg">₹{invoice.grandTotal?.toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between items-center py-2">
                                         <span className="text-gray-500">Current Status:</span>

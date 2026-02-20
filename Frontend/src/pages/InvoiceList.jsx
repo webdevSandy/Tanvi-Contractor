@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { SearchBar, ViewToggle, Modal } from '../components/AdminComponents'; // Added Modal import
 import Loader from '../components/Loader';
+import InvoiceDetailModal from '../components/InvoiceDetailModal';
 
 const InvoiceList = () => {
     const navigate = useNavigate();
@@ -17,6 +18,17 @@ const InvoiceList = () => {
     const [previewUrl, setPreviewUrl] = useState(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [currentInvoiceNum, setCurrentInvoiceNum] = useState('');
+
+    // Modal State
+    const [selectedInvoice, setSelectedInvoice] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Update from Modal
+    const handleInvoiceUpdate = (updatedInvoice) => {
+        setInvoices(invoices.map(inv => inv._id === updatedInvoice._id ? updatedInvoice : inv));
+        setSelectedInvoice(updatedInvoice);
+        setIsModalOpen(false); 
+    };
 
     const fetchInvoices = async () => {
         try {
@@ -90,6 +102,11 @@ const InvoiceList = () => {
         }
     };
 
+    const handleRowClick = (invoice) => {
+        setSelectedInvoice(invoice);
+        setIsModalOpen(true);
+    };
+
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this invoice?')) return;
         try {
@@ -102,6 +119,41 @@ const InvoiceList = () => {
             console.error(error);
             alert('Failed to delete invoice');
         }
+    };
+
+    const handleStatusUpdate = async (id, newStatus) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.put(`${process.env.REACT_APP_API_URL}/invoices/${id}`, 
+                { status: newStatus },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setInvoices(invoices.map(inv => inv._id === id ? { ...inv, status: newStatus } : inv));
+        } catch (error) {
+            console.error('Failed to update status', error);
+            alert('Failed to update status');
+        }
+    };
+
+    const StatusBadge = ({ status, id }) => {
+        const colors = {
+            Paid: 'bg-green-100 text-green-800 border-green-200',
+            Pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+            Overdue: 'bg-red-100 text-red-800 border-red-200'
+        };
+
+        return (
+            <select
+                value={status || 'Pending'}
+                onChange={(e) => handleStatusUpdate(id, e.target.value)}
+                className={`text-xs font-semibold px-2 py-1 rounded-full border cursor-pointer outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 ${colors[status] || colors.Pending}`}
+                onClick={(e) => e.stopPropagation()}
+            >
+                <option value="Pending">Pending</option>
+                <option value="Paid">Paid</option>
+                <option value="Overdue">Overdue</option>
+            </select>
+        );
     };
 
     if (loading) return <div className="flex justify-center p-10"><Loader /></div>;
@@ -127,22 +179,26 @@ const InvoiceList = () => {
             {view === 'card' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredInvoices.map((invoice) => (
-                         <div key={invoice._id} className="bg-white p-5 rounded-lg shadow border border-gray-100 hover:shadow-md transition">
+                         <div 
+                            key={invoice._id} 
+                            onClick={() => handleRowClick(invoice)}
+                            className="bg-white p-5 rounded-lg shadow border border-gray-100 hover:shadow-md transition cursor-pointer"
+                        >
                             <div className="flex justify-between items-start mb-3">
                                 <div>
                                     <h3 className="font-bold text-lg text-gray-800">{invoice.invoiceNumber}</h3>
                                     <p className="text-sm text-gray-500">{new Date(invoice.date).toLocaleDateString()}</p>
                                 </div>
-                                <span className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">Paid</span>
+                                <StatusBadge status={invoice.status} id={invoice._id} />
                             </div>
                             <p className="text-gray-700 font-medium mb-1">{invoice.clientName}</p>
-                            <p className="text-2xl font-bold text-[#8B0000] mb-4">₹{invoice.grandTotal.toFixed(2)}</p>
+                            <p className="text-2xl font-bold text-[#8B0000] mb-4">₹{invoice.grandTotal?.toFixed(2)}</p>
                             
-                            <div className="flex gap-2 border-t pt-3">
+                            <div className="flex gap-2 border-t pt-3" onClick={(e) => e.stopPropagation()}>
                                 <button 
                                     onClick={() => handlePreview(invoice._id, invoice.invoiceNumber)}
                                     className="bg-blue-50 text-blue-600 p-2 rounded hover:bg-blue-100 transition"
-                                    title="Preview Invoice"
+                                    title="Preview PDF"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
@@ -175,22 +231,30 @@ const InvoiceList = () => {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice #</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                             {filteredInvoices.map((invoice) => (
-                                <tr key={invoice._id} className="hover:bg-gray-50">
+                                <tr 
+                                    key={invoice._id} 
+                                    onClick={() => handleRowClick(invoice)}
+                                    className="hover:bg-gray-50 cursor-pointer"
+                                >
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{invoice.invoiceNumber}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{invoice.clientName}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(invoice.date).toLocaleDateString()}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#8B0000]">₹{invoice.grandTotal.toFixed(2)}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-3">
+                                    <td className="px-6 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                                        <StatusBadge status={invoice.status} id={invoice._id} />
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#8B0000]">₹{invoice.grandTotal?.toFixed(2)}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-3" onClick={(e) => e.stopPropagation()}>
                                         <button 
                                             onClick={() => handlePreview(invoice._id, invoice.invoiceNumber)}
                                             className="text-blue-600 hover:text-blue-900"
-                                            title="Preview"
+                                            title="Preview PDF"
                                         >
                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                 <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
@@ -226,11 +290,18 @@ const InvoiceList = () => {
                 </div>
             )}
 
+            <InvoiceDetailModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                invoice={selectedInvoice}
+                onUpdate={handleInvoiceUpdate}
+            />
+
             <Modal 
                 isOpen={isPreviewOpen} 
                 onClose={() => setIsPreviewOpen(false)} 
                 title={`Preview: ${currentInvoiceNum}`}
-                maxWidth="max-w-4xl" // Wider modal for PDF preview
+                maxWidth="max-w-4xl"
             >
                 {previewUrl ? (
                     <iframe 
@@ -244,6 +315,8 @@ const InvoiceList = () => {
                     </div>
                 )}
             </Modal>
+            
+
         </div>
     );
 };
