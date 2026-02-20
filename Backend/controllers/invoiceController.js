@@ -1,6 +1,6 @@
 const Invoice = require('../models/Invoice');
 const CompanyContact = require('../models/CompanyContactModel');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const path = require('path');
 const fs = require('fs');
 const { logActivity } = require('./activityLogController');
