@@ -1,22 +1,26 @@
 const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
-    // Create reusable transporter object using the default SMTP transport
-    // Check credentials
+
+    // ✅ Ensure environment variables exist
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-        console.error('Email credentials missing in .env');
+        console.error('Email credentials missing in environment variables');
         throw new Error('Email credentials missing');
     }
 
+    // ✅ Create transporter using env-based config
     const transporter = nodemailer.createTransport({
-        service: 'gmail', // You can use other services or host/port
+        host: process.env.EMAIL_HOST || "smtp.gmail.com",
+        port: process.env.EMAIL_PORT || 587,
+        secure: process.env.EMAIL_PORT == 465 ? true : false,
         auth: {
-            user: process.env.EMAIL_USER, // Your email address
-            pass: process.env.EMAIL_PASS  // Your email password or app password
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
         },
-        debug: true, // Show debug output
-        logger: true, // Log information to console
-        connectionTimeout: 10000 // 10 seconds timeout
+        connectionTimeout: 20000, // 20 sec
+        tls: {
+            rejectUnauthorized: false
+        }
     });
 
     const message = {
@@ -24,15 +28,15 @@ const sendEmail = async (options) => {
         to: options.email,
         subject: options.subject,
         text: options.message,
-        html: options.html // Send HTML if provided
+        html: options.html
     };
 
     try {
         const info = await transporter.sendMail(message);
-        console.log('Message sent: %s', info.messageId);
+        console.log("Email sent successfully:", info.messageId);
         return info;
     } catch (error) {
-        console.error('Error sending email:', error);
+        console.error("Email sending failed:", error);
         throw error;
     }
 };
