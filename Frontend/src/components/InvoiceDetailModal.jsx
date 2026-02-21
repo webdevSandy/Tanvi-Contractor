@@ -1,8 +1,25 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import html2pdf from 'html2pdf.js';
+import InvoiceTemplate from './InvoiceTemplate';
 
 const InvoiceDetailModal = ({ isOpen, onClose, invoice, onUpdate }) => {
     const [updating, setUpdating] = useState(false);
+    const printRef = React.useRef(null);
+    const [contactInfo, setContactInfo] = useState(null);
+
+    React.useEffect(() => {
+        if (!isOpen) return;
+        const fetchContact = async () => {
+            try {
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/company-contact`);
+                setContactInfo(response.data);
+            } catch (err) {
+                console.error("Failed to fetch contact details for PDF");
+            }
+        };
+        fetchContact();
+    }, [isOpen]);
 
     if (!isOpen || !invoice) return null;
 
@@ -26,24 +43,19 @@ const InvoiceDetailModal = ({ isOpen, onClose, invoice, onUpdate }) => {
 
     const handleDownload = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}/invoices/${invoice._id}/pdf`,
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                    responseType: 'blob',
-                }
-            );
+            const element = printRef.current;
+            const opt = {
+                margin:       0,
+                filename:     `invoice_${invoice.invoiceNumber}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
             
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `invoice_${invoice.invoiceNumber}.pdf`);
-            document.body.appendChild(link);
-            link.click();
-            link.parentNode.removeChild(link);
+            html2pdf().set(opt).from(element).save();
         } catch (error) {
             console.error("Download failed", error);
+            alert("Error downloading PDF");
         }
     };
 
@@ -138,6 +150,11 @@ const InvoiceDetailModal = ({ isOpen, onClose, invoice, onUpdate }) => {
                             Close
                         </button>
                     </div>
+                </div>
+                
+                {/* Hidden container for PDF Generation */}
+                <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
+                    <InvoiceTemplate ref={printRef} invoice={invoice} contact={contactInfo} />
                 </div>
             </div>
         </div>

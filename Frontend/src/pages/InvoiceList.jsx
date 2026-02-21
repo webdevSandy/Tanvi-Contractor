@@ -4,6 +4,8 @@ import axios from 'axios';
 import { SearchBar, ViewToggle, Modal } from '../components/AdminComponents'; // Added Modal import
 import Loader from '../components/Loader';
 import InvoiceDetailModal from '../components/InvoiceDetailModal';
+import InvoiceTemplate from '../components/InvoiceTemplate';
+import html2pdf from 'html2pdf.js';
 
 const InvoiceList = () => {
     const navigate = useNavigate();
@@ -22,6 +24,23 @@ const InvoiceList = () => {
     // Modal State
     const [selectedInvoice, setSelectedInvoice] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    // For html2pdf generation
+    const printRef = React.useRef(null);
+    const [contactInfo, setContactInfo] = useState(null);
+
+    // Fetch contact info for the PDF template once
+    useEffect(() => {
+        const fetchContact = async () => {
+            try {
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/company-contact`);
+                setContactInfo(response.data);
+            } catch (err) {
+                console.error("Failed to fetch contact details for PDF");
+            }
+        };
+        fetchContact();
+    }, []);
 
     // Update from Modal
     const handleInvoiceUpdate = (updatedInvoice) => {
@@ -59,46 +78,61 @@ const InvoiceList = () => {
 
     const handleDownload = async (id, invoiceNumber) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/invoices/${id}/pdf`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `invoice_${invoiceNumber}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-            } else {
-                alert('Failed to download PDF. Server returned: ' + response.status);
-            }
+            const invoice = invoices.find(inv => inv._id === id);
+            if (!invoice) return;
+
+            // Set the invoice strictly for rendering
+            setSelectedInvoice(invoice);
+
+            // Give React a tiny amount of time to render the hidden component with the new selectedInvoice data
+            setTimeout(() => {
+                const element = printRef.current;
+                const opt = {
+                    margin:       0,
+                    filename:     `invoice_${invoiceNumber}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+                
+                html2pdf().set(opt).from(element).save();
+            }, 100);
+
         } catch (error) {
-            console.error('Error downloading PDF:', error);
-            alert('Error connecting to server. Please ensure backend is running.');
+            console.error('Error generating PDF:', error);
+            alert('Error generating PDF.');
         }
     };
 
     const handlePreview = async (id, invoiceNumber) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/invoices/${id}/pdf`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const invoice = invoices.find(inv => inv._id === id);
+            if (!invoice) return;
+
+            setSelectedInvoice(invoice);
             
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                setPreviewUrl(url);
-                setCurrentInvoiceNum(invoiceNumber);
-                setIsPreviewOpen(true);
-            }
+            setTimeout(() => {
+                const element = printRef.current;
+                const opt = {
+                    margin:       0,
+                    filename:     `invoice_${invoiceNumber}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+                
+                // Generate the blob and create a URL for the iframe
+                html2pdf().set(opt).from(element).outputPdf('blob').then((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    setPreviewUrl(url);
+                    setCurrentInvoiceNum(invoiceNumber);
+                    setIsPreviewOpen(true);
+                });
+            }, 100);
+
         } catch (error) {
             console.error('Error fetching PDF for preview:', error);
-            alert('Could not load preview. Please ensure backend is running.');
+            alert('Could not load preview.');
         }
     };
 
@@ -316,6 +350,10 @@ const InvoiceList = () => {
                 )}
             </Modal>
             
+            {/* Hidden container for PDF Generation */}
+            <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
+                <InvoiceTemplate ref={printRef} invoice={selectedInvoice} contact={contactInfo} />
+            </div>
 
         </div>
     );

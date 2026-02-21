@@ -16,7 +16,7 @@ exports.getContactInfo = async (req, res) => {
 // @route   PUT /api/company-contact
 // @access  Private/Admin
 exports.updateContactInfo = async (req, res) => {
-    const { phone, email, address, accountName, accountNumber, ifscCode, bankName, branch, gstin, pan } = req.body;
+    const { phone, email, address, accountName, accountNumber, ifscCode, bankName, branch, gstin, pan, activeTemplate } = req.body;
 
     try {
         const contact = await CompanyContact.getSingleton();
@@ -35,6 +35,9 @@ exports.updateContactInfo = async (req, res) => {
         // Update Tax Info
         contact.gstin = gstin || contact.gstin;
         contact.pan = pan || contact.pan;
+        
+        // Update Template Preference
+        contact.activeTemplate = activeTemplate || contact.activeTemplate;
 
         const updatedContact = await contact.save();
         res.json(updatedContact);

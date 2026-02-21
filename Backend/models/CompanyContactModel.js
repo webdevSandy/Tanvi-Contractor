@@ -25,6 +25,12 @@ const companyContactSchema = new mongoose.Schema({
     // Company Tax Info
     gstin: { type: String, default: '09ELJPK1174H2ZV' },
     pan: { type: String, default: 'ELJPK1174H' },
+    // Invoice Template Selection
+    activeTemplate: { 
+        type: String, 
+        enum: ['classic', 'premium', 'modern'], 
+        default: 'premium' 
+    },
 }, { timestamps: true });
 
 // Ensure only one document exists
