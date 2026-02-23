@@ -7,9 +7,6 @@ const TemplateClassic = forwardRef(({ invoice, displayContact }, ref) => {
 
     return (
         <div ref={ref} className="font-['Times_New_Roman',_Times,_serif] px-10 py-[30px] m-0 text-[13px] text-black bg-white w-[210mm] min-h-[295mm] box-border relative [&_*]:[print-color-adjust:exact] [&_*]:[-webkit-print-color-adjust:exact]">
-            <style>
-                {`@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');`}
-            </style>
 
             <div className="w-full">
                 <div className="w-full mb-1">

@@ -3,9 +3,6 @@ import React, { forwardRef } from 'react';
 const TemplatePremium = forwardRef(({ invoice, displayContact }, ref) => {
     return (
         <div ref={ref} className="w-[210mm] min-h-[295mm] box-border p-10 m-0 text-[13px] text-slate-800 bg-white relative font-sans [&_*]:[print-color-adjust:exact] [&_*]:[-webkit-print-color-adjust:exact]">
-            <style>
-                {`@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;500;600;700;800&display=swap');`}
-            </style>
 
             <div className="invoice-template-wrapper font-['Inter',sans-serif]">
                 

@@ -3,9 +3,6 @@ import React, { forwardRef } from 'react';
 const TemplateModern = forwardRef(({ invoice, displayContact }, ref) => {
     return (
         <div ref={ref} className="w-[210mm] min-h-[295mm] box-border p-8 m-0 text-[13px] text-slate-800 bg-[#f8fafc] relative font-sans [&_*]:[print-color-adjust:exact] [&_*]:[-webkit-print-color-adjust:exact]">
-            <style>
-                {`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');`}
-            </style>
 
             <div className="modern-wrapper font-['Outfit',sans-serif]">
                 
