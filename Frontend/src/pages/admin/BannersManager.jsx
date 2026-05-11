@@ -47,7 +47,11 @@ const BannersManager = () => {
         const file = e.target.files[0];
         setFormData({ ...formData, imageFile: file });
         if (file) {
-            setPreview(URL.createObjectURL(file));
+            if (file.name.match(/\.(json|lottie)$/i) || file.type === 'application/json') {
+                setPreview('LOTTIE_PREVIEW');
+            } else {
+                setPreview(URL.createObjectURL(file));
+            }
         }
     };
 
@@ -136,7 +140,11 @@ const BannersManager = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredBanners.map(banner => (
                         <div key={banner._id} className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition">
-                            <img src={banner.image} alt={banner.title} className="w-full h-40 object-cover rounded mb-3" />
+                            {banner.image && banner.image.match(/\.(json|lottie)$/i) ? (
+                                <div className="w-full h-40 bg-slate-100 rounded mb-3 flex items-center justify-center text-slate-500 font-medium text-sm">Lottie Animation</div>
+                            ) : (
+                                <img src={banner.image} alt={banner.title} className="w-full h-40 object-cover rounded mb-3" />
+                            )}
                             <h3 className="font-bold text-lg mb-1">{banner.title}</h3>
                             <p className="text-sm text-gray-600 mb-3">{banner.subtitle}</p>
                             <div className="flex justify-between items-center mt-3">
@@ -161,7 +169,11 @@ const BannersManager = () => {
                             {filteredBanners.map(banner => (
                                 <tr key={banner._id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4">
-                                        <img src={banner.image} alt="" className="h-12 w-20 object-cover rounded" />
+                                        {banner.image && banner.image.match(/\.(json|lottie)$/i) ? (
+                                            <div className="h-12 w-20 bg-slate-100 rounded flex items-center justify-center text-[10px] text-slate-500 font-medium">Lottie</div>
+                                        ) : (
+                                            <img src={banner.image} alt="" className="h-12 w-20 object-cover rounded" />
+                                        )}
                                     </td>
                                     <td className="px-6 py-4 text-sm font-medium text-gray-900">{banner.title}</td>
                                     <td className="px-6 py-4 text-sm text-gray-500">{banner.subtitle}</td>
@@ -191,19 +203,23 @@ const BannersManager = () => {
                         <input name="subtitle" value={formData.subtitle} onChange={handleChange} className="mt-1 w-full border p-2 rounded" />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Banner Image</label>
+                        <label className="block text-sm font-medium text-gray-700">Banner Image / Lottie (.json)</label>
                         <input 
                             type="file" 
                             name="image" 
-                            accept="image/*"
+                            accept="image/*,.json,.lottie,application/json"
                             onChange={handleFileChange} 
                             className="mt-1 w-full border p-2 rounded" 
                         />
-                        {preview && (
+                        {preview === 'LOTTIE_PREVIEW' ? (
+                            <div className="mt-2 text-center p-4 bg-blue-50 border border-blue-200 rounded text-blue-700 font-medium">
+                                Lottie Animation Selected (Preview available on save)
+                            </div>
+                        ) : preview ? (
                             <div className="mt-2 text-center">
                                 <img src={preview} alt="Preview" className="h-32 mx-auto rounded object-cover" />
                             </div>
-                        )}
+                        ) : null}
                     </div>
                     <div className="flex justify-end gap-3 mt-6">
                         <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 border rounded text-gray-600 hover:bg-gray-50">Cancel</button>

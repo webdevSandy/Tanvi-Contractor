@@ -91,8 +91,16 @@ exports.loginUser = async (req, res) => {
                         })}`
                     });
                 } catch (emailError) {
-                    console.error(emailError);
-                    return res.status(500).json({ message: 'Email error: ' + emailError.message });
+                    console.error('--- OTP DEVELOPMENT FALLBACK ---');
+                    console.error('Failed to send email to:', user.email);
+                    console.error('Because you are using Resend free tier without a verified domain, emails can only be sent to contact.sandychaudhary@gmail.com.');
+                    console.error(`Your Login OTP is: ${otp}`);
+                    console.error('--------------------------------');
+                    
+                    // Respond with a specific message so the user knows to check the console
+                    return res.status(500).json({ 
+                        message: 'Email sending failed due to Resend domain verification. Please check the backend terminal for your OTP.'
+                    });
                 }
             }
 

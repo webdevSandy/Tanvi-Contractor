@@ -5,6 +5,9 @@ exports.createBanner = async (req, res) => {
         let bannerData = req.body;
         if (req.file) {
             bannerData.image = req.file.path;
+            // Detect if it's a lottie/json file by original filename
+            const originalName = req.file.originalname || '';
+            bannerData.mediaType = originalName.match(/\.(json|lottie)$/i) ? 'lottie' : 'image';
         }
         const banner = await Banner.create(bannerData);
         res.status(201).json(banner);
@@ -27,6 +30,9 @@ exports.updateBanner = async (req, res) => {
         let updateData = req.body;
         if (req.file) {
             updateData.image = req.file.path;
+            // Detect if it's a lottie/json file by original filename
+            const originalName = req.file.originalname || '';
+            updateData.mediaType = originalName.match(/\.(json|lottie)$/i) ? 'lottie' : 'image';
         }
         const banner = await Banner.findByIdAndUpdate(req.params.id, updateData, { new: true });
         if (!banner) return res.status(404).json({ message: 'Banner not found' });

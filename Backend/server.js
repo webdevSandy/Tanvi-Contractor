@@ -20,6 +20,7 @@ const partnerRoutes = require('./routes/partnerRoutes');
 const bannerRoutes = require('./routes/bannerRoutes');
 const contactRoutes = require('./routes/contactRoutes'); // Added
 const aboutRoutes = require('./routes/aboutRoutes'); // Added for about routes
+const quotationRoutes = require('./routes/quotationRoutes'); // Added Quotations
 
 app.use('/api/auth', authRoutes);
 app.use('/api/invoices', invoiceRoutes);
@@ -33,6 +34,7 @@ app.use('/api/company-contact', require('./routes/companyContactRoutes'));
 app.use('/api/footer', require('./routes/footerRoutes')); // Added
 app.use('/api/activity-logs', require('./routes/activityLogRoutes')); // Activity Logs
 app.use('/api/expenses', require('./routes/expenseRoutes')); // Expenses
+app.use('/api/quotations', quotationRoutes); // Quotations
 
 app.get('/', (req, res) => {
     res.send('Tanvi Contractor Backend is running');

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tanvicontractor.vercel.app/sitemap.xml

@@ -10,9 +10,20 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'tanvi_contractor', // Folder name in Cloudinary
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+  params: async (req, file) => {
+    // Check if it's a lottie/json file
+    if (file.originalname.match(/\.(json|lottie)$/i) || file.mimetype === 'application/json') {
+      return {
+        folder: 'tanvi_contractor',
+        resource_type: 'raw'
+      };
+    }
+    // Default for images
+    return {
+      folder: 'tanvi_contractor',
+      allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'gif', 'svg'],
+      resource_type: 'image'
+    };
   },
 });
 

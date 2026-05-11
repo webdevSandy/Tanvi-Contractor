@@ -5,20 +5,71 @@ import { motion, AnimatePresence } from 'framer-motion';
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('Home');
   const location = useLocation();
+  const isHomePage = location.pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
+      // 1. Scrolled state for navbar styling
       if (window.scrollY > 10) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
+
+      // 2. Scrollspy logic to highlight active section
+      if (isHomePage) {
+        const sections = [
+          { name: 'Home', id: 'home' },
+          { name: 'Services', id: 'services' },
+          { name: 'Partners', id: 'partners' },
+          { name: 'About Us', id: 'about' },
+          { name: 'Contact', id: 'contact' },
+        ];
+
+        const scrollPosition = window.scrollY + 150; // Offset for navbar height
+
+        let currentActive = activeSection;
+        for (const section of sections) {
+          const element = document.getElementById(section.id);
+          if (element) {
+            const top = element.offsetTop;
+            const height = element.offsetHeight;
+            if (scrollPosition >= top && scrollPosition < top + height) {
+              currentActive = section.name;
+            }
+          }
+        }
+        
+        // Ensure "Home" is selected if at the very top
+        if (window.scrollY < 50) currentActive = 'Home';
+        
+        if (currentActive !== activeSection) {
+          setActiveSection(currentActive);
+        }
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isHomePage, activeSection]);
+
+  // Handle active state on page load or route change
+  useEffect(() => {
+    if (!isHomePage) {
+      if (location.pathname === '/about') setActiveSection('About Us');
+      else if (location.pathname === '/contact') setActiveSection('Contact');
+      else setActiveSection('');
+    } else {
+      // If we land on home page with a hash, e.g. /#services
+      if (location.hash === '#services') setActiveSection('Services');
+      else if (location.hash === '#partners') setActiveSection('Partners');
+      else if (location.hash === '#about') setActiveSection('About Us');
+      else if (location.hash === '#contact') setActiveSection('Contact');
+      else if (!location.hash) setActiveSection('Home');
+    }
+  }, [location.pathname, location.hash, isHomePage]);
 
   const navLinks = [
     { name: 'Home', href: '/' },
@@ -27,8 +78,6 @@ const Navbar = () => {
     { name: 'About Us', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ];
-
-  const isHomePage = location.pathname === '/';
 
   const getLinkHref = (link) => {
     if (link.name === 'Home') return '/';
@@ -67,10 +116,15 @@ const Navbar = () => {
               <a
                 key={link.name}
                 href={getLinkHref(link)}
-                className={`text-lg font-medium  transition-all duration-300 relative group py-1 text-gray-700 hover:text-[#8B0000]`}
+                onClick={() => setActiveSection(link.name)}
+                className={`text-lg font-medium transition-all duration-300 relative group py-1 ${
+                  activeSection === link.name ? 'text-[#8B0000]' : 'text-gray-700 hover:text-[#8B0000]'
+                }`}
               >
                 {link.name}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#8B0000] transition-all duration-300 group-hover:w-full"></span>
+                <span className={`absolute bottom-0 left-0 h-0.5 bg-[#8B0000] transition-all duration-300 ${
+                  activeSection === link.name ? 'w-full' : 'w-0 group-hover:w-full'
+                }`}></span>
               </a>
             ))}
             
@@ -137,8 +191,13 @@ const Navbar = () => {
                     <a
                       key={link.name}
                       href={getLinkHref(link)}
-                      className="text-lg font-medium text-gray-800 hover:text-[#8B0000] transition-colors py-2 border-b border-gray-100"
-                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`text-lg font-medium transition-colors py-2 border-b border-gray-100 ${
+                        activeSection === link.name ? 'text-[#8B0000] border-[#8B0000]' : 'text-gray-800 hover:text-[#8B0000]'
+                      }`}
+                      onClick={() => {
+                        setActiveSection(link.name);
+                        setIsMobileMenuOpen(false);
+                      }}
                     >
                       {link.name}
                     </a>

@@ -24,7 +24,7 @@ const AboutContact = () => {
   }, []);
 
   return (
-    <div id="about" className="py-20 bg-white">
+    <section id="about" className="relative py-20 bg-white/70 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         
         {/* About Us Section */}
@@ -37,7 +37,7 @@ const AboutContact = () => {
         >
             {/* Standard Section Heading */}
             <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-[#002D5B]">About Us</h2>
+                <h2 className="text-3xl md:text-4xl font-bold text-[#002D5B]">About <span className="text-[#8B0000]">Us</span></h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -63,7 +63,9 @@ const AboutContact = () => {
                 {/* Content Side (Right) */}
                 <div className="order-2 md:order-2 text-left space-y-6">
                     <h2 className="text-4xl font-bold text-[#002D5B] leading-tight">
-                        {data.title}
+                        {data.title && data.title.split(' ').map((word, i, arr) => (
+                            i === arr.length - 1 ? <span key={i} className="text-[#8B0000]">{word}</span> : <span key={i}>{word} </span>
+                        ))}
                     </h2>
                     <p className="text-gray-600 text-lg leading-relaxed whitespace-pre-wrap">
                         {data.description}
@@ -80,7 +82,7 @@ const AboutContact = () => {
             </div>
         </motion.div>
       </div>
-    </div>
+    </section>
   );
 };
 

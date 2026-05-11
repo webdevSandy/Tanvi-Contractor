@@ -1,28 +1,23 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-const InvoiceForm = () => {
+const CreateQuotation = () => {
     const navigate = useNavigate();
-    const location = useLocation();
-    const initialData = location.state?.quotation || {};
-
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        invoiceNumber: `TC/24-25/${Math.floor(Math.random() * 1000)}`,
+        quotationNumber: '',
         date: new Date().toISOString().split('T')[0],
-        clientName: initialData.clientName || '',
-        clientAddress: initialData.clientAddress || '',
-        consignee: initialData.consignee || { name: '', address: '', gstin: '' },
-        vendorCode: initialData.vendorCode || '',
-        orderNo: initialData.orderNo || '',
-        orderDate: initialData.orderDate ? new Date(initialData.orderDate).toISOString().split('T')[0] : '',
-        contractNo: initialData.contractNo || '',
-        diNo: initialData.diNo || '',
-        diDate: initialData.diDate ? new Date(initialData.diDate).toISOString().split('T')[0] : '',
-        accountDetails: initialData.accountDetails || {},
-        items: initialData.items && initialData.items.length > 0 
-               ? initialData.items.map(i => ({ ...i })) 
-               : [{ description: '', quantity: 1, rate: 0, amount: 0, unit: 'NOS' }]
+        clientName: '',
+        clientAddress: '',
+        consignee: { name: '', address: '', gstin: '' },
+        vendorCode: '',
+        orderNo: '',
+        orderDate: '',
+        contractNo: '',
+        diNo: '',
+        diDate: '',
+        accountDetails: {},
+        items: [{ description: '', quantity: 1, rate: 0, amount: 0, unit: 'NOS' }]
     });
 
     const handleChange = (e, section = null) => {
@@ -86,7 +81,7 @@ const InvoiceForm = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/invoices`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/quotations`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -96,8 +91,8 @@ const InvoiceForm = () => {
             });
 
             if (response.ok) {
-                alert('Invoice Created Successfully!');
-                navigate('/admin/invoices');
+                alert('Quotation Created Successfully!');
+                navigate('/admin/quotations');
             } else {
                 const error = await response.json();
                 alert(`Error: ${error.message}`);
@@ -112,17 +107,17 @@ const InvoiceForm = () => {
 
     return (
         <div className="max-w-5xl mx-auto bg-white p-8 rounded shadow">
-            <h2 className="text-2xl font-bold mb-6 text-[#002D5B] border-b pb-2">Generate New <span className="text-[#8B0000]">Invoice</span></h2>
+            <h2 className="text-2xl font-bold mb-6 text-[#8B0000] border-b pb-2">Generate New Quotation</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
                 
                 {/* Header Info */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label className="block text-sm font-bold mb-1">Invoice No</label>
-                        <input type="text" name="invoiceNumber" value={formData.invoiceNumber} onChange={handleChange} className="w-full border p-2 rounded" required />
+                        <label className="block text-sm font-bold mb-1">Quotation No (Leave blank to auto-generate)</label>
+                        <input type="text" name="quotationNumber" value={formData.quotationNumber} onChange={handleChange} className="w-full border p-2 rounded" placeholder="Auto Generate" />
                     </div>
                     <div>
-                        <label className="block text-sm font-bold mb-1">Invoice Date</label>
+                        <label className="block text-sm font-bold mb-1">Date</label>
                         <input type="date" name="date" value={formData.date} onChange={handleChange} className="w-full border p-2 rounded" required />
                     </div>
                     <div>
@@ -233,9 +228,9 @@ const InvoiceForm = () => {
                 </div>
 
                 <div className="flex justify-end gap-4">
-                    <button type="button" onClick={() => navigate('/admin/invoices')} className="px-6 py-2 border rounded hover:bg-gray-100">Cancel</button>
+                    <button type="button" onClick={() => navigate('/admin/quotations')} className="px-6 py-2 border rounded hover:bg-gray-100">Cancel</button>
                     <button type="submit" disabled={loading} className="px-6 py-2 bg-[#8B0000] text-white rounded hover:bg-[#660000] disabled:opacity-50">
-                        {loading ? 'Creating...' : 'Create Invoice'}
+                        {loading ? 'Creating...' : 'Create Quotation'}
                     </button>
                 </div>
             </form>
@@ -243,4 +238,4 @@ const InvoiceForm = () => {
     );
 };
 
-export default InvoiceForm;
+export default CreateQuotation;

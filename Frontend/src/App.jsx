@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { InvoiceProvider } from './context/InvoiceContext';
 import FormPage from './pages/FormPage';
 import InvoicePage from './pages/InvoicePage';
@@ -22,11 +23,21 @@ import Dashboard from './pages/admin/Dashboard';
 import ActivityLogs from './pages/admin/ActivityLogs';
 import AdminProfile from './pages/admin/AdminProfile';
 import AccountantDashboard from './pages/admin/AccountantDashboard';
+import QuotationList from './pages/admin/QuotationList';
+import CreateQuotation from './pages/admin/CreateQuotation';
+
+// New Global UI Components
+import CustomCursor from './components/CustomCursor';
+import AnimatedBackground from './components/AnimatedBackground';
 
 function App() {
   return (
-    <InvoiceProvider>
+    <HelmetProvider>
+      <InvoiceProvider>
       <Router>
+        <CustomCursor />
+        <AnimatedBackground />
+        
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
@@ -45,6 +56,8 @@ function App() {
              <Route path="contacts" element={<ContactManager />} />
              <Route path="activity-logs" element={<ActivityLogs />} />
              <Route path="account" element={<AccountantDashboard />} />
+             <Route path="quotations" element={<QuotationList />} />
+             <Route path="create-quotation" element={<CreateQuotation />} />
              <Route index element={<Dashboard />} />
           </Route>
           
@@ -52,6 +65,7 @@ function App() {
         </Routes>
       </Router>
     </InvoiceProvider>
+    </HelmetProvider>
   );
 }
 

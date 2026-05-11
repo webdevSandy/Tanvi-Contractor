@@ -63,7 +63,7 @@ const ContactUs = () => {
     };
 
     return (
-        <div id="contact" className="py-20 bg-gray-50">
+        <section id="contact" className="relative py-20 bg-gray-50/70 backdrop-blur-md">
             {loading ? (
                  <div className="flex justify-center items-center h-64">
                     <Loader />
@@ -78,7 +78,7 @@ const ContactUs = () => {
                     transition={{ duration: 0.8 }}
                     className="text-center mb-16"
                 >
-                    <h2 className="text-3xl md:text-4xl font-bold text-[#002D5B] mb-4">Contact us</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold text-[#002D5B] mb-4">Contact <span className="text-[#8B0000]">Us</span></h2>
                     <p className="text-gray-600 max-w-4xl mx-auto text-base md:text-lg">
                         Get in touch with us for any inquiries or assistance. We are here to help!
                     </p>
@@ -186,7 +186,7 @@ const ContactUs = () => {
                 </div>
             </div>
             )}
-        </div>
+        </section>
     );
 };
 

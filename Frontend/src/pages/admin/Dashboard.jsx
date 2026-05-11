@@ -8,9 +8,8 @@ import Loader from '../../components/Loader';
 const Dashboard = () => {
     const [stats, setStats] = useState({
         invoices: 0,
-        services: 0,
-        partners: 0,
-        banners: 0,
+        quotations: 0,
+        finance: 0,
         recentContacts: [],
         recentInvoices: [],
         revenueData: []
@@ -43,11 +42,10 @@ const Dashboard = () => {
                     }
                 };
 
-                const [invoicesData, servicesData, partnersData, bannersData, contactsData] = await Promise.all([
+                const [invoicesData, quotationsData, expensesData, contactsData] = await Promise.all([
                     getData(`${process.env.REACT_APP_API_URL}/invoices`),
-                    getData(`${process.env.REACT_APP_API_URL}/services`),
-                    getData(`${process.env.REACT_APP_API_URL}/partners`),
-                    getData(`${process.env.REACT_APP_API_URL}/banners`),
+                    getData(`${process.env.REACT_APP_API_URL}/quotations`),
+                    getData(`${process.env.REACT_APP_API_URL}/expenses`),
                     getData(`${process.env.REACT_APP_API_URL}/contacts`)
                 ]);
 
@@ -67,9 +65,8 @@ const Dashboard = () => {
                 // Process Data
                 setStats({
                     invoices: invoicesData.length,
-                    services: servicesData.length,
-                    partners: partnersData.length,
-                    banners: bannersData.length,
+                    quotations: quotationsData.length,
+                    finance: expensesData.length,
                     recentInvoices: invoicesData.slice(-5).reverse(),
                     recentContacts: contactsData.slice(-5).reverse(),
                     revenueData: chartData
@@ -103,9 +100,8 @@ const Dashboard = () => {
 
     const modules = [
         { title: 'Total Invoices', count: stats.invoices, link: '/admin/invoices', color: 'from-blue-500 to-blue-700', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
-        { title: 'Active Services', count: stats.services, link: '/admin/services', color: 'from-green-500 to-green-700', icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
-        { title: 'Partners', count: stats.partners, link: '/admin/partners', color: 'from-purple-500 to-purple-700', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
-        { title: 'Banners', count: stats.banners, link: '/admin/banners', color: 'from-orange-500 to-orange-700', icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
+        { title: 'Quotations', count: stats.quotations, link: '/admin/quotations', color: 'from-orange-500 to-orange-700', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
+        { title: 'Finance', count: stats.finance, link: '/admin/account', color: 'from-green-500 to-green-700', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' }
     ];
 
     if (isLoading) {
@@ -120,21 +116,25 @@ const Dashboard = () => {
                     <h1 className="text-3xl font-bold text-[#002D5B]">Good Morning, {user.username} Sir!</h1>
                     <p className="text-gray-500 mt-1">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                 </div>
-                <div className="mt-4 md:mt-0">
+                <div className="mt-4 md:mt-0 flex gap-4">
+                     <Link to="/admin/create-quotation" className="bg-[#002D5B] text-white px-6 py-3 rounded-lg hover:bg-blue-900 transition shadow-md flex items-center">
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                        New Quotation
+                    </Link>
                      <Link to="/admin/create-invoice" className="bg-[#8B0000] text-white px-6 py-3 rounded-lg hover:bg-red-800 transition shadow-md flex items-center">
                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
-                        Create Invoice
+                        New Invoice
                     </Link>
                 </div>
             </div>
             
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
                 {modules.map((mod, index) => (
                     <Link key={index} to={mod.link} className={`relative overflow-hidden block p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-1 bg-gradient-to-br ${mod.color} text-white`}>
                         <div className="relative z-10 flex justify-between items-start">
                             <div>
-                                <p className="text-sm font-medium opacity-80 uppercase tracking-wider">{mod.title}</p>
+                                <p className="text-lg font-bold uppercase tracking-wider">{mod.title}</p>
                                 <h3 className="text-4xl font-extrabold mt-2">{mod.count}</h3>
                             </div>
                             <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">

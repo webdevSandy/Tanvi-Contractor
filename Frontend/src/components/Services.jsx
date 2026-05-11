@@ -26,22 +26,22 @@ const Services = () => {
 
   if (loading) {
     return (
-      <div id="services" className="py-20 bg-white flex justify-center">
+      <section id="services" className="relative py-20 bg-white/70 backdrop-blur-md flex justify-center">
          <Loader />
-      </div>
+      </section>
     );
   }
 
   if (error) {
     return (
-      <div id="services" className="py-20 bg-white flex justify-center text-red-500">
+      <section id="services" className="relative py-20 bg-white/70 backdrop-blur-md flex justify-center text-red-500">
         {error}
-      </div>
+      </section>
     );
   }
 
   return (
-    <div id="services" className="py-20 bg-white">
+    <section id="services" className="relative py-20 bg-white/70 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div 
             initial={{ opacity: 0, y: 50 }}
@@ -50,7 +50,7 @@ const Services = () => {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-[#002D5B]">Our Services</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-[#002D5B]">Our <span className="text-[#8B0000]">Services</span></h2>
           <p className="mt-4 text-gray-600 max-w-4xl mx-auto text-base md:text-lg">
             Quality craftsmanship and expert management for every project.
           </p>
@@ -103,7 +103,7 @@ const Services = () => {
              </motion.div>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 
